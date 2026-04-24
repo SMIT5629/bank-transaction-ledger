@@ -1,6 +1,7 @@
 const userModel = require("../models/user.model")
 const jwt = require("jsonwebtoken")
 const emailService = require("../services/email.service")
+const tokenBlacklistModel = require("../models/backList.model")
 
 const userRegister = async (req, res) => {
 
@@ -73,7 +74,35 @@ const userLogin = async (req, res) => {
 
 }
 
+const userLogout = async (req, res) => {
+    const token = req.cookies.token
+    if (token) {
+        await tokenBlacklistModel.create({ token })
+        res.clearCookie("token")
+        return res.status(200).json({
+            message: "User logged out successfully"
+        })
+    }
+    res.status(400).json({
+        message: "No token found"
+    })
+}
+
+const getMe = async (req, res) => {
+    const user = await userModel.findById(req.user._id)
+    res.status(200).json({
+        user: {
+            _id: user._id,
+            email: user.email,
+            name: user.name
+        }
+    })
+}
+
+
 module.exports = {
     userRegister,
-    userLogin
+    userLogin,
+    userLogout,
+    getMe
 }
