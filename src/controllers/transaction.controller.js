@@ -34,11 +34,13 @@ async function createTransaction(req, res) {
     }
     const fromUserAccount = await accountModel.findOne({
         _id: fromAccount,
+        user:req.user._id
     })
 
     const toUserAccount = await accountModel.findOne({
         _id: toAccount,
     })
+    
     if (!fromUserAccount || !toUserAccount) {
         return res.status(404).json({
             message: "Account not found"
